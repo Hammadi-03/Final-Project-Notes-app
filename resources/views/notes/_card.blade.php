@@ -88,7 +88,7 @@ $colorClass = $colorMap[$note->color] ?? '';
             <input type="file" id="card-image-input-{{ $note->id }}" style="display: none;" accept="image/*" onchange="uploadCardImage(event, {{ $note->id }})">
 
             <!-- Quick Archive Button inside Card Toolbar -->
-            <form method="POST" action="{{ route('notes.archive.toggle', $note) }}" style="margin:0;padding:0;display:inline-block;">
+            <form method="POST" action="{{ route('notes.toggleArchive', $note) }}" style="margin:0;padding:0;display:inline-block;">
                 @csrf
                 <button type="submit" class="card-toolbar-btn" title="{{ $note->is_archived ? 'Unarchive' : 'Archive' }}" onclick="event.stopPropagation();">
                     <i class="fa-solid fa-box-archive"></i>
