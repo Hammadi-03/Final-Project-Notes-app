@@ -546,12 +546,14 @@
     }
 
     function toggleNoteLabel(noteId, labelId, isChecked) {
-        fetch(`/notes/${noteId}/label/${labelId}/toggle`, {
+        fetch(`/notes/${noteId}/labels`, {
             method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
-            }
+            },
+            body: JSON.stringify({ label_id: labelId })
         })
         .then(res => res.json())
         .then(data => {
