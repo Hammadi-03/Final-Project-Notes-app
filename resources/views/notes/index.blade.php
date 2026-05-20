@@ -201,12 +201,13 @@
         to { transform: scale(1); opacity: 1; }
     }
     
-    /* Custom color styles for Edit Modal */
-    .edit-modal-card.color-red { background: #f28b82 !important; }
-    .edit-modal-card.color-yellow { background: #fff475 !important; }
-    .edit-modal-card.color-green { background: #ccff90 !important; }
-    .edit-modal-card.color-blue { background: #cbf0f8 !important; }
-    .edit-modal-card.color-purple { background: #d7aefb !important; }
+    /* List view modifier */
+    .notes-grid.list-view {
+        grid-template-columns: 1fr !important;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 </style>
 
 <div class="app-wrapper">
@@ -236,13 +237,19 @@
             <a href="{{ route('notes.index') }}" class="topbar-icon-btn hide-mobile" title="Refresh">
                 <svg focusable="false" viewBox="0 0 24 24" style="width:24px;height:24px;fill:currentColor;"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path></svg>
             </a>
-            <button class="topbar-icon-btn hide-mobile" title="List view">
+            <button type="button" class="topbar-icon-btn hide-mobile" id="viewModeToggleBtn" onclick="toggleViewMode()" title="Toggle View Mode">
                 <svg focusable="false" viewBox="0 0 24 24" style="width:24px;height:24px;fill:currentColor;"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"></path></svg>
             </button>
-            <button class="topbar-icon-btn hide-mobile" title="Settings">
-                <svg focusable="false" viewBox="0 0 24 24" style="width:24px;height:24px;fill:currentColor;"><path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path></svg>
-            </button>
-            <div class="user-menu" id="userMenu" onclick="toggleUserMenu()">
+            <div style="position: relative; display: inline-block;">
+                <button type="button" class="topbar-icon-btn hide-mobile" onclick="toggleSettingsDropdown(event)" title="Settings">
+                    <svg focusable="false" viewBox="0 0 24 24" style="width:24px;height:24px;fill:currentColor;"><path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path></svg>
+                </button>
+                <div class="user-dropdown" id="settingsDropdown" style="display:none; position:absolute; right:0; top:42px; width:180px; z-index:100; box-shadow:var(--shadow-md);">
+                    <button type="button" class="dropdown-item" onclick="openSettingsModal()"><i class="fa-solid fa-gear" style="width:18px;"></i> Settings</button>
+                    <button type="button" class="dropdown-item" onclick="openFeedbackModal()"><i class="fa-regular fa-comment-dots" style="width:18px;"></i> Send feedback</button>
+                </div>
+            </div>
+            <div class="user-menu" id="userMenu" onclick="toggleUserMenu(event)">
                 <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
                 <div class="user-dropdown">
                     <div style="padding:8px 12px 12px;">
@@ -263,13 +270,21 @@
 
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-        <a href="{{ route('notes.index') }}" class="nav-item {{ Request::routeIs('notes.index') ? 'active' : '' }}">
+        <a href="{{ route('notes.index') }}" class="nav-item {{ (Request::routeIs('notes.index') && !isset($currentLabel) && !isset($isArchivePage)) ? 'active' : '' }}">
             <span class="nav-icon" style="width:24px;text-align:center;"><i class="fa-regular fa-lightbulb"></i></span> Notes
         </a>
-        <a href="#" class="nav-item">
+        
+        <!-- Display dynamic user labels -->
+        @foreach($globalLabels as $lbl)
+        <a href="{{ route('labels.show', $lbl->id) }}" class="nav-item {{ (isset($currentLabel) && $currentLabel->id === $lbl->id) ? 'active' : '' }}">
+            <span class="nav-icon" style="width:24px;text-align:center;"><i class="fa-solid fa-tag"></i></span> {{ $lbl->name }}
+        </a>
+        @endforeach
+
+        <a href="#" class="nav-item" onclick="openEditLabelsModal(); return false;">
             <span class="nav-icon" style="width:24px;text-align:center;"><i class="fa-solid fa-pencil"></i></span> Edit labels
         </a>
-        <a href="#" class="nav-item">
+        <a href="{{ route('notes.archive') }}" class="nav-item {{ isset($isArchivePage) ? 'active' : '' }}">
             <span class="nav-icon" style="width:24px;text-align:center;"><i class="fa-solid fa-box-archive"></i></span> Archive
         </a>
         <a href="{{ route('notes.trash') }}" class="nav-item {{ Request::routeIs('notes.trash') ? 'active' : '' }}">
@@ -290,16 +305,32 @@
                 <h1>Search Results</h1>
                 <p>{{ $totalNotes }} note{{ $totalNotes !== 1 ? 's' : '' }} · Last updated {{ now()->format('M j, Y') }}</p>
             </div>
-            <a href="{{ route('notes.create') }}" class="btn btn-primary">
-                <span>+</span> New Note
-            </a>
         </div>
-        @else
+        @elseif(isset($isArchivePage))
+        <div class="page-header">
+            <div class="page-title-block">
+                <h1>Archive</h1>
+            </div>
+        </div>
+        @elseif(isset($currentLabel))
+        <div class="page-header">
+            <div class="page-title-block">
+                <h1>Label: {{ $currentLabel->name }}</h1>
+            </div>
+        </div>
+        @endif
+
+        {{-- Show Quick Note Creator (unless it is Archive page) --}}
+        @if(!isset($isArchivePage) && !request('search'))
         <!-- Quick Note Creator -->
         <div class="quick-note-wrapper" id="quickNoteWrapper">
             <form action="{{ route('notes.store') }}" method="POST" id="quickNoteForm" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="color" id="quickNoteColor" value="default">
+                <input type="hidden" name="is_archived" id="quickNoteIsArchived" value="0">
+                @if(isset($currentLabel))
+                    <input type="hidden" name="label_ids[]" value="{{ $currentLabel->id }}">
+                @endif
                 <input type="file" name="image" id="quickNoteImageInput" style="display:none;" accept="image/*" onchange="previewQuickNoteImage(this)">
                 
                 <div class="quick-note-card" id="quickNoteCard">
@@ -348,7 +379,7 @@
                             </div>
 
                             <button type="button" class="qn-tool-btn" title="Add image" onclick="document.getElementById('quickNoteImageInput').click();"><i class="fa-regular fa-image"></i></button>
-                            <button type="button" class="qn-tool-btn" title="Archive"><i class="fa-solid fa-box-archive"></i></button>
+                            <button type="button" class="qn-tool-btn" onclick="archiveQuickNote()" title="Archive"><i class="fa-solid fa-box-archive"></i></button>
                             <button type="button" class="qn-tool-btn" title="More"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                         </div>
                         <div class="qn-actions">
@@ -401,19 +432,13 @@
                     <i class="fa-regular fa-lightbulb"></i>
                 @endif
             </div>
-            <div class="empty-title" style="color:#80868b;font-weight:500;">{{ request('search') ? 'No notes found' : 'No notes yet' }}</div>
+            <div class="empty-title" style="color:#80868b;font-weight:500;">{{ request('search') ? 'No notes found' : 'No noteyyyyy' }}</div>
             <div class="empty-sub">
                 @if(request('search'))
                     No notes match "{{ request('search') }}". Try a different keyword.
                 @else
-                    Create your first note to get started. Your ideas deserve a good home.
                 @endif
             </div>
-            @if(!request('search'))
-                <a href="{{ route('notes.create') }}" class="btn btn-primary">+ Create Your First Note</a>
-            @else
-                <a href="{{ route('notes.index') }}" class="btn btn-ghost">← Back to Notes</a>
-            @endif
         </div>
         @endif
 
@@ -887,7 +912,39 @@ function toggleEditModalPin() {
     }
 }
 
-// Initialize Drag and Drop (SortableJS)
+function archiveQuickNote() {
+    document.getElementById('quickNoteIsArchived').value = '1';
+    document.getElementById('quickNoteForm').submit();
+}
+
+function toggleViewMode() {
+    const grids = document.querySelectorAll('.notes-grid');
+    let isList = false;
+    grids.forEach(grid => {
+        isList = grid.classList.toggle('list-view');
+    });
+    localStorage.setItem('viewMode', isList ? 'list' : 'grid');
+    updateViewModeIcon();
+}
+
+function updateViewModeIcon() {
+    const grid = document.querySelector('.notes-grid');
+    const btn = document.getElementById('viewModeToggleBtn');
+    if (!grid || !btn) return;
+    const isList = grid.classList.contains('list-view');
+    btn.innerHTML = isList 
+        ? `<svg focusable="false" viewBox="0 0 24 24" style="width:24px;height:24px;fill:currentColor;"><path d="M4 11h5V5H4v6zm0 7h5v-6H4v6zm6 0h5v-6h-5v6zm6 0h5v-6h-5v6zm-6-7h5V5h-5v6zm6-6v6h5V5h-5z"></path></svg>`
+        : `<svg focusable="false" viewBox="0 0 24 24" style="width:24px;height:24px;fill:currentColor;"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"></path></svg>`;
+    btn.title = isList ? 'Grid view' : 'List view';
+}
+
+function toggleSettingsDropdown(event) {
+    if (event) event.stopPropagation();
+    const dropdown = document.getElementById('settingsDropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+}
+
+// Initialize Drag and Drop (SortableJS) and View Mode
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.notes-grid').forEach(grid => {
         new Sortable(grid, {
@@ -898,6 +955,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Restore View Mode from localStorage
+    const savedViewMode = localStorage.getItem('viewMode');
+    if (savedViewMode === 'list') {
+        document.querySelectorAll('.notes-grid').forEach(grid => {
+            grid.classList.add('list-view');
+        });
+    }
+    updateViewModeIcon();
 });
 
 function toggleSidebar() {
@@ -907,13 +973,19 @@ function toggleSidebar() {
     mainContent.classList.toggle('expanded');
 }
 
-function toggleUserMenu() {
+function toggleUserMenu(event) {
+    if (event) event.stopPropagation();
     document.getElementById('userMenu').classList.toggle('open');
 }
+
 document.addEventListener('click', function(e) {
     const menu = document.getElementById('userMenu');
     if (menu && !menu.contains(e.target)) menu.classList.remove('open');
+    
+    const dropdown = document.getElementById('settingsDropdown');
+    if (dropdown && !dropdown.contains(e.target)) dropdown.style.display = 'none';
 });
+
 // Close sidebar on overlay click (mobile)
 document.addEventListener('click', function(e) {
     const sidebar = document.getElementById('sidebar');
@@ -925,6 +997,7 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
 // Initialize mobile state
 if (window.innerWidth <= 768) {
     document.getElementById('sidebar').classList.add('closed');

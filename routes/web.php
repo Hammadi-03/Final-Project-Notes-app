@@ -38,4 +38,19 @@ Route::middleware('auth')->group(function () {
     Route::delete('/notes/{id}/force',    [NoteController::class, 'forceDelete'])->name('notes.forceDelete');
     Route::delete('/notes/empty-trash',   [NoteController::class, 'emptyTrash'])->name('notes.emptyTrash');
     Route::post('/notes/{note}/copy',     [NoteController::class, 'duplicate'])->name('notes.duplicate');
+
+    // Archive routes
+    Route::get('/archive',                [NoteController::class, 'archive'])->name('notes.archive');
+    Route::post('/notes/{note}/archive',  [NoteController::class, 'toggleArchive'])->name('notes.toggleArchive');
+
+    // Label routes
+    Route::post('/labels',                [NoteController::class, 'storeLabel'])->name('labels.store');
+    Route::put('/labels/{label}',         [NoteController::class, 'updateLabel'])->name('labels.update');
+    Route::delete('/labels/{label}',      [NoteController::class, 'destroyLabel'])->name('labels.destroy');
+    Route::get('/labels/{label}',         [NoteController::class, 'labelView'])->name('labels.show');
+    Route::post('/notes/{note}/labels',   [NoteController::class, 'toggleNoteLabel'])->name('notes.toggleLabel');
+
+    // User settings & Feedback routes
+    Route::post('/settings',              [NoteController::class, 'saveSettings'])->name('settings.save');
+    Route::post('/feedback',              [NoteController::class, 'submitFeedback'])->name('feedback.submit');
 });

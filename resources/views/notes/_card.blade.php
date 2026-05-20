@@ -31,12 +31,26 @@ $colorClass = $colorMap[$note->color] ?? '';
     </form>
 
     <!-- Content -->
-    <div style="flex:1;">
-        <h3 class="note-title" style="margin-right:24px;">{{ $note->title }}</h3>
-        @if($note->content)
-            <p class="note-content">{{ $note->content }}</p>
-        @else
-            <p class="note-content" style="font-style:italic;color:#9ca3af;">No content...</p>
+    <div style="flex:1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h3 class="note-title" style="margin-right:24px;">{{ $note->title }}</h3>
+            @if($note->content)
+                <p class="note-content">{{ $note->content }}</p>
+            @else
+                <p class="note-content" style="font-style:italic;color:#9ca3af;">No content...</p>
+            @endif
+        </div>
+
+        <!-- Label Pills -->
+        @if($note->labels->count() > 0)
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; margin-bottom:8px;">
+            @foreach($note->labels as $label)
+            <span class="label-pill">
+                <i class="fa-solid fa-tag"></i>
+                <span>{{ $label->name }}</span>
+            </span>
+            @endforeach
+        </div>
         @endif
     </div>
 
@@ -73,12 +87,20 @@ $colorClass = $colorMap[$note->color] ?? '';
             </button>
             <input type="file" id="card-image-input-{{ $note->id }}" style="display: none;" accept="image/*" onchange="uploadCardImage(event, {{ $note->id }})">
 
+            <!-- Quick Archive Button inside Card Toolbar -->
+            <form method="POST" action="{{ route('notes.archive.toggle', $note) }}" style="margin:0;padding:0;display:inline-block;">
+                @csrf
+                <button type="submit" class="card-toolbar-btn" title="{{ $note->is_archived ? 'Unarchive' : 'Archive' }}" onclick="event.stopPropagation();">
+                    <i class="fa-solid fa-box-archive"></i>
+                </button>
+            </form>
+
             <!-- 3-Dot Options Button -->
             <div style="position: relative; display: inline-block;">
                 <button type="button" class="card-toolbar-btn" title="More" onclick="event.stopPropagation(); toggleCardMoreMenu(event, {{ $note->id }})">
                     <i class="fa-solid fa-ellipsis-vertical"></i>
                 </button>
-                <div class="card-more-menu" id="card-more-menu-{{ $note->id }}" style="display: none; position: absolute; bottom: 32px; left: 0; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); border-radius: 4px; padding: 4px 0; z-index: 100; border: 1px solid var(--gray-200); min-width: 120px; text-align: left; flex-direction: column;">
+                <div class="card-more-menu" id="card-more-menu-{{ $note->id }}" style="display: none; position: absolute; bottom: 32px; left: 0; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); border-radius: 4px; padding: 4px 0; z-index: 100; border: 1px solid var(--gray-200); min-width: 140px; text-align: left; flex-direction: column;">
                     <form method="POST" action="{{ route('notes.destroy', $note) }}" style="margin:0;padding:0;">
                         @csrf
                         @method('DELETE')
@@ -88,6 +110,20 @@ $colorClass = $colorMap[$note->color] ?? '';
                         @csrf
                         <button type="submit" onclick="event.stopPropagation();" style="width: 100%; border: none; background: none; padding: 6px 12px; font-size: 14px; text-align: left; cursor: pointer; color: var(--gray-800); display: block; font-family: inherit;">Make a copy</button>
                     </form>
+                    @if($globalLabels->count() > 0)
+                    <div style="border-top: 1px solid var(--gray-200); padding-top: 4px; margin-top: 4px;">
+                        <div style="padding: 4px 12px; font-size: 10px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.5px;">Change Labels</div>
+                        @foreach($globalLabels as $label)
+                        <label onclick="event.stopPropagation();" style="display: flex; align-items: center; gap: 8px; padding: 4px 12px; font-size: 13px; cursor: pointer; color: var(--gray-700); font-family: inherit; font-weight: 500;">
+                            <input type="checkbox" 
+                                   onchange="toggleNoteLabel({{ $note->id }}, {{ $label->id }}, this.checked)" 
+                                   {{ $note->labels->contains($label->id) ? 'checked' : '' }} 
+                                   style="width: 14px; height: 14px; cursor: pointer;">
+                            <span style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">{{ $label->name }}</span>
+                        </label>
+                        @endforeach
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>

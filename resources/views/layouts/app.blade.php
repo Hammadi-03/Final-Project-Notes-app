@@ -178,6 +178,126 @@
         }
         .modal-overlay.active .modal { transform: scale(1); }
 
+        /* ── Reusable Keep Modals ── */
+        .keep-modal-backdrop {
+            position: fixed; inset: 0; background: rgba(32,33,36,0.6); backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .keep-modal-backdrop.active { display: flex; }
+        .keep-modal-card {
+            background: #fff; border: 1px solid var(--gray-200); border-radius: 8px;
+            box-shadow: var(--shadow-lg); width: 90%; max-width: 440px; padding: 24px;
+            position: relative; animation: scaleUp 0.15s cubic-bezier(0, 0, 0.2, 1) forwards;
+        }
+        .label-pill {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: var(--gray-100);
+            color: var(--gray-700);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            max-width: 100%;
+            border: 1px solid var(--gray-200);
+        }
+        .label-pill i {
+            font-size: 9px;
+            opacity: 0.7;
+        }
+        
+        /* ── Dark Mode Styles ── */
+        body.dark-theme {
+            --gray-50: #202124;
+            --gray-100: #303134;
+            --gray-200: #3c4043;
+            --gray-300: #5f6368;
+            --gray-400: #80868b;
+            --gray-500: #9ca3af;
+            --gray-600: #bdc1c6;
+            --gray-700: #dadce0;
+            --gray-800: #e8eaed;
+            --gray-900: #f1f3f4;
+            background: var(--gray-50) !important;
+            color: var(--gray-800) !important;
+        }
+        body.dark-theme .topbar,
+        body.dark-theme .sidebar,
+        body.dark-theme .card,
+        body.dark-theme .note-card,
+        body.dark-theme .quick-note-card,
+        body.dark-theme .edit-modal-card,
+        body.dark-theme .modal,
+        body.dark-theme .user-dropdown,
+        body.dark-theme .color-menu,
+        body.dark-theme .card-more-menu,
+        body.dark-theme #editModalMoreMenu,
+        body.dark-theme .keep-modal-card {
+            background-color: #202124 !important;
+            border-color: #3c4043 !important;
+            color: var(--gray-800) !important;
+        }
+        body.dark-theme .dropdown-item {
+            color: var(--gray-800) !important;
+        }
+        body.dark-theme .dropdown-item:hover {
+            background: var(--gray-100) !important;
+        }
+        body.dark-theme .nav-item {
+            color: var(--gray-800) !important;
+        }
+        body.dark-theme .nav-item:hover {
+            background: #35363a !important;
+        }
+        body.dark-theme .nav-item.active {
+            background: #41331c !important;
+            color: #feefc3 !important;
+        }
+        body.dark-theme .nav-item.active .nav-icon {
+            color: #feefc3 !important;
+        }
+        body.dark-theme input,
+        body.dark-theme textarea,
+        body.dark-theme select {
+            background-color: transparent !important;
+            color: var(--gray-800) !important;
+            border-color: var(--gray-200);
+        }
+        body.dark-theme .search-bar {
+            background: #303134 !important;
+        }
+        body.dark-theme .search-bar input {
+            color: var(--gray-800) !important;
+        }
+        body.dark-theme .btn-ghost {
+            border-color: #3c4043;
+            color: var(--gray-800);
+        }
+        body.dark-theme .btn-ghost:hover {
+            background: #303134;
+        }
+        body.dark-theme .qn-tool-btn,
+        body.dark-theme .card-toolbar-btn {
+            color: var(--gray-600) !important;
+        }
+        body.dark-theme .qn-tool-btn:hover,
+        body.dark-theme .card-toolbar-btn:hover {
+            background: rgba(241, 243, 244, 0.08) !important;
+            color: var(--gray-800) !important;
+        }
+        body.dark-theme .color-blue { background: #1e3a8a !important; border-color: #1e3a8a !important; }
+        body.dark-theme .color-green { background: #064e3b !important; border-color: #064e3b !important; }
+        body.dark-theme .color-yellow { background: #78350f !important; border-color: #78350f !important; }
+        body.dark-theme .color-red { background: #7f1d1d !important; border-color: #7f1d1d !important; }
+        body.dark-theme .color-purple { background: #581c87 !important; border-color: #581c87 !important; }
+        
+        body.dark-theme .edit-modal-card.color-blue { background: #1e3a8a !important; }
+        body.dark-theme .edit-modal-card.color-green { background: #064e3b !important; }
+        body.dark-theme .edit-modal-card.color-yellow { background: #78350f !important; }
+        body.dark-theme .edit-modal-card.color-red { background: #7f1d1d !important; }
+        body.dark-theme .edit-modal-card.color-purple { background: #581c87 !important; }
+
         /* ── Responsive ── */
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); position: fixed; z-index: 100; height: 100vh; }
@@ -187,7 +307,7 @@
         }
     </style>
 </head>
-<body>
+<body class="{{ ($globalSettings['dark_theme'] ?? false) ? 'dark-theme' : '' }}">
     <!-- Toast Container -->
     <div id="toast-container"></div>
 
@@ -207,6 +327,78 @@
                     @csrf @method('DELETE')
                     <button type="submit" class="btn btn-danger" style="width:100%;">Delete Note</button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="keep-modal-backdrop" id="settingsModal">
+        <div class="keep-modal-card">
+            <h3 style="font-size:18px;font-weight:700;margin-bottom:16px;">Settings</h3>
+            <form id="settingsForm" method="POST" action="{{ route('settings.save') }}">
+                @csrf
+                <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:24px;">
+                    <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+                        <input type="checkbox" name="add_to_bottom" value="1" {{ ($globalSettings['add_to_bottom'] ?? true) ? 'checked' : '' }} style="width:18px; height:18px;">
+                        <span>Add new items to the bottom</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+                        <input type="checkbox" name="move_checked_to_bottom" value="1" {{ ($globalSettings['move_checked_to_bottom'] ?? true) ? 'checked' : '' }} style="width:18px; height:18px;">
+                        <span>Move checked items to bottom</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+                        <input type="checkbox" name="dark_theme" id="darkThemeCheckbox" value="1" {{ ($globalSettings['dark_theme'] ?? false) ? 'checked' : '' }} style="width:18px; height:18px;">
+                        <span>Enable dark theme</span>
+                    </label>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:12px;">
+                    <button type="button" class="btn btn-ghost" onclick="closeSettingsModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Send Feedback Modal -->
+    <div class="keep-modal-backdrop" id="feedbackModal">
+        <div class="keep-modal-card">
+            <h3 style="font-size:18px;font-weight:700;margin-bottom:16px;">Send feedback to Antigravity Notes</h3>
+            <form id="feedbackForm" method="POST" action="{{ route('feedback.submit') }}">
+                @csrf
+                <textarea name="content" required placeholder="Tell us what you think! Describe your issue or share your ideas..." style="width:100%; height:120px; padding:12px; border:1px solid var(--gray-200); border-radius:6px; font-family:inherit; resize:none; margin-bottom:16px;"></textarea>
+                <div style="display:flex; justify-content:flex-end; gap:12px;">
+                    <button type="button" class="btn btn-ghost" onclick="closeFeedbackModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Labels Modal -->
+    <div class="keep-modal-backdrop" id="editLabelsModal">
+        <div class="keep-modal-card" style="max-width: 360px; padding: 16px;">
+            <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">Edit labels</h3>
+            
+            <!-- Create new label line -->
+            <div style="display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--gray-200); padding-bottom:12px; margin-bottom:16px;">
+                <button type="button" class="card-toolbar-btn" style="padding:4px; font-size:14px; opacity:0.6;"><i class="fa-solid fa-plus"></i></button>
+                <input type="text" id="newLabelInput" placeholder="Create new label" style="flex:1; border:none; outline:none; font-size:14px; font-weight:500; background:transparent;">
+                <button type="button" class="card-toolbar-btn" onclick="submitCreateLabel()" style="padding:4px; font-size:14px; color:var(--primary);"><i class="fa-solid fa-check"></i></button>
+            </div>
+
+            <!-- Existing Labels Scroll Container -->
+            <div id="labelsListContainer" style="max-height: 240px; overflow-y: auto; display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
+                @foreach($globalLabels as $lbl)
+                <div class="label-row" id="label-row-{{ $lbl->id }}" style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="card-toolbar-btn delete-btn" onclick="submitDeleteLabel({{ $lbl->id }})" style="padding:4px; font-size:14px; opacity:0.6;"><i class="fa-solid fa-trash-can"></i></button>
+                    <input type="text" class="label-name-input" id="label-input-{{ $lbl->id }}" value="{{ $lbl->name }}" style="flex:1; border:none; outline:none; font-size:14px; background:transparent;" onfocus="showSaveLabelIcon({{ $lbl->id }})">
+                    <button type="button" class="card-toolbar-btn save-btn" id="label-save-{{ $lbl->id }}" onclick="submitUpdateLabel({{ $lbl->id }})" style="padding:4px; font-size:14px; color:var(--primary); display:none;"><i class="fa-solid fa-check"></i></button>
+                </div>
+                @endforeach
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--gray-200); padding-top:12px;">
+                <button type="button" class="btn btn-ghost" style="padding: 6px 16px; font-size:13px;" onclick="closeEditLabelsModal()">Done</button>
             </div>
         </div>
     </div>
@@ -263,6 +455,130 @@
     function toggleSidebar() {
         const sidebar = document.querySelector('.sidebar');
         if (sidebar) sidebar.classList.toggle('open');
+    }
+
+    // ── Reusable Modal Helpers ──
+    function openSettingsModal() {
+        document.getElementById('settingsModal').classList.add('active');
+    }
+    function closeSettingsModal() {
+        document.getElementById('settingsModal').classList.remove('active');
+    }
+    function openFeedbackModal() {
+        document.getElementById('feedbackModal').classList.add('active');
+    }
+    function closeFeedbackModal() {
+        document.getElementById('feedbackModal').classList.remove('active');
+    }
+    function openEditLabelsModal() {
+        document.getElementById('editLabelsModal').classList.add('active');
+    }
+    function closeEditLabelsModal() {
+        document.getElementById('editLabelsModal').classList.remove('active');
+    }
+    
+    // Close on clicking backdrop
+    document.querySelectorAll('.keep-modal-backdrop').forEach(backdrop => {
+        backdrop.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        });
+    });
+
+    // ── Label Actions ──
+    function submitCreateLabel() {
+        const name = document.getElementById('newLabelInput').value.trim();
+        if (!name) return;
+        fetch("{{ route('labels.store') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ name: name })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Label created', 'success');
+                location.reload();
+            }
+        });
+    }
+
+    function showSaveLabelIcon(id) {
+        document.getElementById(`label-save-${id}`).style.display = 'inline-block';
+    }
+
+    // Live theme switcher checkbox behavior
+    const themeCheckbox = document.getElementById('darkThemeCheckbox');
+    if (themeCheckbox) {
+        themeCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+        });
+    }
+
+    function submitUpdateLabel(id) {
+        const name = document.getElementById(`label-input-${id}`).value.trim();
+        if (!name) return;
+        fetch(`/labels/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ name: name })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Label updated', 'success');
+                document.getElementById(`label-save-${id}`).style.display = 'none';
+            }
+        });
+    }
+
+    function toggleNoteLabel(noteId, labelId, isChecked) {
+        fetch(`/notes/${noteId}/label/${labelId}/toggle`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.attached ? 'Label added' : 'Label removed', 'success');
+                location.reload();
+            }
+        });
+    }
+
+    function submitDeleteLabel(id) {
+        if (!confirm('Are you sure you want to delete this label?')) return;
+        fetch(`/labels/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Label deleted', 'success');
+                document.getElementById(`label-row-${id}`).remove();
+                location.reload();
+            }
+        });
     }
 
     // ── Auto-show session flash toasts ──
