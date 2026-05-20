@@ -25,19 +25,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/notes',            [NoteController::class, 'index'])->name('notes.index');
     Route::get('/notes/create',     [NoteController::class, 'create'])->name('notes.create');
     Route::post('/notes',           [NoteController::class, 'store'])->name('notes.store');
+    Route::delete('/notes/empty-trash',   [NoteController::class, 'emptyTrash'])->name('notes.emptyTrash');
     Route::get('/notes/{note}/edit',[NoteController::class, 'edit'])->name('notes.edit');
     Route::put('/notes/{note}',     [NoteController::class, 'update'])->name('notes.update');
     Route::delete('/notes/{note}',  [NoteController::class, 'destroy'])->name('notes.destroy');
     Route::post('/notes/{note}/pin',[NoteController::class, 'togglePin'])->name('notes.pin');
     Route::patch('/notes/{note}/color',[NoteController::class, 'updateColor'])->name('notes.color');
     Route::post('/notes/{note}/image',[NoteController::class, 'uploadImage'])->name('notes.image');
+    Route::post('/notes/{note}/copy',     [NoteController::class, 'duplicate'])->name('notes.duplicate');
     
     // Trash routes
     Route::get('/trash',                  [NoteController::class, 'trash'])->name('notes.trash');
     Route::post('/notes/{id}/restore',    [NoteController::class, 'restore'])->name('notes.restore');
     Route::delete('/notes/{id}/force',    [NoteController::class, 'forceDelete'])->name('notes.forceDelete');
-    Route::delete('/notes/empty-trash',   [NoteController::class, 'emptyTrash'])->name('notes.emptyTrash');
-    Route::post('/notes/{note}/copy',     [NoteController::class, 'duplicate'])->name('notes.duplicate');
 
     // Archive routes
     Route::get('/archive',                [NoteController::class, 'archive'])->name('notes.archive');
