@@ -123,43 +123,50 @@
 
         /* ── Toast notifications ── */
         #toast-container {
-            position: fixed; top: 24px; right: 24px;
-            z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+            position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+            z-index: 9999; display: flex; flex-direction: column; gap: 12px;
+            align-items: center; pointer-events: none;
         }
         .toast {
-            display: flex; align-items: center; gap: 12px;
-            padding: 14px 20px; border-radius: var(--radius-sm);
-            font-size: 14px; font-weight: 500;
-            box-shadow: var(--shadow-lg);
-            animation: slideIn .3s ease forwards;
-            min-width: 280px; max-width: 380px;
+            pointer-events: auto;
+            display: flex; align-items: center; gap: 16px;
+            padding: 8px 24px 8px 8px; border-radius: 9999px;
+            background: #ffffff;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.1);
+            animation: slideDown .4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            min-width: 320px; max-width: 420px;
+            border: 1px solid rgba(0,0,0,0.04);
         }
-        .toast.success { background: #ECFDF5; color: #065F46; border-left: 4px solid var(--success); }
-        .toast.error   { background: #FEF2F2; color: #991B1B; border-left: 4px solid var(--danger); }
-        .toast.info    { background: #EFF6FF; color: #1E40AF; border-left: 4px solid #3B82F6; }
-        .toast.deleted { 
-            background: #323232; color: #fff; border: none; 
-            border-radius: 4px; box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
+        .toast-icon-wrap {
+            width: 44px; height: 44px; border-radius: 14px;
+            background: #1c1c1e; color: #ffffff;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 20px;
+        }
+        .toast-content {
+            display: flex; flex-direction: column; justify-content: center;
+            gap: 2px; padding: 4px 0;
+        }
+        .toast-title {
+            font-weight: 700; font-size: 15px; color: #111827; line-height: 1.2;
+        }
+        .toast-message {
+            font-size: 14px; color: #4b5563; line-height: 1.2;
         }
         .toast-undo {
-            color: #F4B400; font-weight: 500; background: none; border: none; cursor: pointer;
-            padding: 0 8px; font-size: 14px; margin-left: auto; font-family: inherit; letter-spacing: 0.3px;
+            color: #4F46E5; font-weight: 600; background: none; border: none; cursor: pointer;
+            padding: 8px 16px; font-size: 14px; margin-left: auto; border-radius: 999px;
+            transition: background 0.2s;
         }
-        .toast-undo:hover { text-decoration: underline; }
-        .toast-icon { font-size: 18px; flex-shrink: 0; }
-        .toast-close {
-            margin-left: auto; background: none; border: none;
-            cursor: pointer; color: inherit; opacity: .6; font-size: 16px;
-            padding: 2px; flex-shrink: 0;
+        .toast-undo:hover { background: rgba(79,70,229,0.1); }
+        .toast-close { display: none; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .toast-close:hover { opacity: 1; }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(40px); }
-            to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes slideOut {
-            from { opacity: 1; transform: translateX(0); }
-            to   { opacity: 0; transform: translateX(40px); }
+        @keyframes fadeOutUp {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to   { opacity: 0; transform: translateY(-20px) scale(0.95); }
         }
 
         /* ── Modal ── */
@@ -408,33 +415,47 @@
     // ── Toast System ──
     function showToast(message, type = 'success') {
         const icons = { 
-            success: '<i class="fa-solid fa-circle-check" style="color:#10B981;"></i>', 
-            error: '<i class="fa-solid fa-circle-xmark" style="color:#EF4444;"></i>', 
-            info: '<i class="fa-solid fa-circle-info" style="color:#3B82F6;"></i>' 
+            success: '<i class="fa-solid fa-check"></i>', 
+            error: '<i class="fa-solid fa-xmark"></i>', 
+            info: '<i class="fa-solid fa-info"></i>',
+            deleted: '<i class="fa-solid fa-trash"></i>'
         };
+        const titles = {
+            success: 'Success',
+            error: 'Error',
+            info: 'Information',
+            deleted: 'Note Trashed'
+        };
+        
+        let title = titles[type] || 'Notification';
+        let displayMessage = message;
+        if (type === 'deleted') {
+            displayMessage = 'Note moved to trash.';
+        }
+
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         
-        if (type === 'deleted') {
-            toast.innerHTML = `
-                <span style="flex:1;">Note trashed</span>
-                <button class="toast-undo" onclick="dismissToast(this.parentElement)">Undo</button>
-                <button class="toast-close" style="color:#fff; opacity:0.7; margin-left:8px;" onclick="dismissToast(this.parentElement)">✕</button>
-            `;
-        } else {
-            toast.innerHTML = `
-                <span class="toast-icon">${icons[type]}</span>
-                <span>${message}</span>
-                <button class="toast-close" onclick="dismissToast(this.parentElement)">✕</button>
-            `;
-        }
+        let undoBtn = type === 'deleted' ? `<button class="toast-undo" onclick="dismissToast(this.closest('.toast'))">Undo</button>` : '';
+        
+        toast.innerHTML = `
+            <div class="toast-icon-wrap">
+                ${icons[type] || '<i class="fa-solid fa-bell"></i>'}
+            </div>
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${displayMessage}</div>
+            </div>
+            ${undoBtn}
+        `;
         
         container.appendChild(toast);
         setTimeout(() => dismissToast(toast), 4000);
     }
     function dismissToast(el) {
-        el.style.animation = 'slideOut .3s ease forwards';
+        if (!el) return;
+        el.style.animation = 'fadeOutUp .3s cubic-bezier(0.16, 1, 0.3, 1) forwards';
         setTimeout(() => el.remove(), 300);
     }
 
