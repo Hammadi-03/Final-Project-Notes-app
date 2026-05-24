@@ -1,16 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In — MyNotepad</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    
-</head>
-<body>
+@extends('layouts.guest')
+
+@section('content')
     <div class="container">
         <div class="card">
             <div class="card-header">
@@ -70,8 +60,4 @@
                 </p>
             </div>
         </div>
-    </div>
-
-    
-</body>
-</html>
+@endsection
